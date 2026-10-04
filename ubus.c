@@ -27,6 +27,12 @@ static int ubus_status_cb(struct ubus_context *ctx,
 
 	blobmsg_add_u32(&u, "latest", uuid_latest);
 	blobmsg_add_u32(&u, "active", uuid_active);
+	blobmsg_add_u32(&u, "client_pid", getpid());
+	blobmsg_add_u32(&u, "connection_generation", native_session.generation);
+	blobmsg_add_u32(&u, "config_received_sequence", native_session.received.sequence);
+	blobmsg_add_u64(&u, "config_received_uuid", native_session.received.uuid);
+	blobmsg_add_u32(&u, "config_applied_sequence", native_session.applied.sequence);
+	blobmsg_add_u64(&u, "config_applied_uuid", native_session.applied.uuid);
 	ubus_send_reply(ctx, req, u.head);
 
 	return UBUS_STATUS_OK;

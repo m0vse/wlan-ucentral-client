@@ -28,8 +28,8 @@ apply_complete_cb(struct task *t, time_t uuid, uint32_t id, int ret)
 		config_init(0, id);
 		return;
 	}
-	uuid_active = uuid_applied = uuid_latest;
-	ULOG_INFO("applied cfg:%" PRIu64 "\n", uuid_latest);
+	uuid_active = uuid_applied = uuid;
+	ULOG_INFO("applied cfg:%" PRIu64 "\n", uuid);
 	//health_run(id, 0);
 }
 

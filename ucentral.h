@@ -2,6 +2,8 @@
 
 #define _GNU_SOURCE
 
+#include "session_status.h"
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -56,6 +58,8 @@ struct task {
 	int cancelled;
 	char *priv;
 };
+
+extern struct task apply_task;
 
 extern struct runqueue adminqueue;
 extern struct runqueue runqueue;

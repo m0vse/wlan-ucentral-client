@@ -664,6 +664,7 @@ configure_handle(struct blob_attr **rpc)
 	uint32_t id = 0;
 	char *cfg;
 	FILE *fp;
+	int written, closed;
 
 	blobmsg_parse(params_policy, __PARAMS_MAX, tb, blobmsg_data(rpc[JSONRPC_PARAMS]),
 		      blobmsg_data_len(rpc[JSONRPC_PARAMS]));
@@ -693,6 +694,11 @@ configure_handle(struct blob_attr **rpc)
 		return;
 	}
 
+	if (!client.serial || strcmp(blobmsg_get_string(tb[PARAMS_SERIAL]), client.serial)) {
+		configure_reply(1, "configuration serial does not match this device", 0, id);
+		return;
+	}
+
 	if (tb[PARAMS_COMPRESS])
 		state_compress = blobmsg_get_bool(tb[PARAMS_COMPRESS]);
 
@@ -713,9 +719,14 @@ configure_handle(struct blob_attr **rpc)
 		configure_reply(1, "failed to store the configuration", 0, id);
 		return;
 	}
-	fprintf(fp, "%s", cfg);
+	written = fprintf(fp, "%s", cfg);
 	free(cfg);
-	fclose(fp);
+	closed = fclose(fp);
+	if (written < 0 || closed) {
+		configure_reply(1, "failed to store the configuration", 0, id);
+		return;
+	}
+	session_received(blobmsg_get_u32(tb[PARAMS_UUID]), id);
 	config_init(1, id);
 }
 

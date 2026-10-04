@@ -8,6 +8,7 @@ struct ucentral_task {
 	uint32_t id;
 	int ret;
 	struct task *task;
+	struct session_receipt session;
 	struct runqueue_process proc;
 	struct uloop_timeout delay;
 };
@@ -63,6 +64,8 @@ task_complete(struct runqueue *q, struct runqueue_task *task)
 {
 	struct ucentral_task *t = container_of(task, struct ucentral_task, proc.task);
 	t->task->cancelled = task->cancelled;
+	if (t->task == &apply_task)
+		session_applied(t->session, t->uuid, t->id, !t->ret && !task->cancelled);
 	t->task->complete(t->task, t->uuid, t->id, t->ret);
 	if (t->task->periodic) {
 		t->delay.cb = task_delay;
@@ -105,6 +108,7 @@ task_config(struct task *task, time_t uuid, uint32_t id)
 	t->uuid = uuid;
 	t->id = id;
 	t->task = task;
+	t->session = session_capture(uuid, id);
 	t->proc.task.type = &task_type;
 	t->proc.task.run_timeout = task->run_time * 1000;
 	t->proc.task.complete = task_complete;

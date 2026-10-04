@@ -299,6 +299,7 @@ callback_broker(struct lws *wsi, enum lws_callback_reasons reason,
 		reconnect_timeout = 1;
 		set_conn_time();
 		websocket = wsi;
+		session_connected();
 		remove(PUBLIC_IP_FILE);
 		connect_send();
 		crashlog_init();
@@ -324,6 +325,7 @@ callback_broker(struct lws *wsi, enum lws_callback_reasons reason,
 	case LWS_CALLBACK_CLIENT_CLOSED:
 		ULOG_INFO("connection closed\n");
 		websocket = NULL;
+		session_disconnected();
 		set_conn_time();
 		vhd->client_wsi = NULL;
 		lws_sul_schedule(vhd->context, 0, &vhd->sul,
